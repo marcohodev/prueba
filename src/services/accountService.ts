@@ -1,6 +1,7 @@
 import { Account } from '../models/Account';
+import { Platform } from 'react-native';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
 const ACCOUNTS_PATH = '/api';
 
 export async function fetchAccounts(): Promise<Account[]> {
