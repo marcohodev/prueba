@@ -1,0 +1,31 @@
+# Preguntas Adicionales
+### 1. ¿Qué haría si el API tarda 15 segundos?
+Bajaría el tiempo máximo de espera del lado de la app a unos 8-10 segundos y mostraría una pantalla de carga mientras tanto, para que no se sienta trabada. Pero el problema real lo resolvería con el equipo de backend: si algo tarda tanto es porque probablemente está haciendo un trabajo pesado mientras el usuario espera. Lo ideal es que el servidor responda casi al instante diciendo "ya recibí tu pedido, dame un momento" (respuesta `202 Accepted` con un identificador de tarea o `jobId`), y que la app pregunte cada cierto tiempo si ya terminó, o reciba un aviso automático cuando esté listo (esto se llama consultar por intervalos o notificación push).
+
+### 2. ¿Cómo implementaría cache offline?
+Mostraría de inmediato lo último que quedó guardado en el celular, para que la app se sienta rápida, y por detrás, sin que el usuario lo note, pediría los datos nuevos al servidor para actualizar la pantalla apenas lleguen (Stale-While-Revalidate). Para guardar esos datos en el celular usaría una herramienta simple si la información es básica (MMKV), o una más completa si hay datos relacionados entre sí, como una base de datos chiquita (WatermelonDB). Si el usuario hace cambios sin conexión, los guardo en una lista de pendientes y los envío al servidor apenas detecto que volvió el internet.
+
+### 3. ¿Cómo protegería información sensible?
+Las contraseñas, tokens y llaves nunca las guardo en un almacenamiento normal del teléfono; las guardo en una caja fuerte que el propio sistema operativo ofrece y que está cifrada por hardware (Keychain en iOS, Keystore en Android). Obligo a que toda la comunicación con el servidor vaya cifrada, y además hago que la app verifique que el certificado del servidor sea exactamente el esperado, para evitar que alguien intercepte la conexión. También aplico una herramienta que vuelve el código difícil de leer si alguien lo intenta abrir (ofuscación con ProGuard/R8), nunca dejo contraseñas escritas directamente en el código, y en las pantallas con información delicada, como saldos, bloqueo la posibilidad de tomar capturas de pantalla (`FLAG_SECURE`).
+
+### 4. ¿Cómo publicaría una versión a producción?
+Primero corro todas las revisiones automáticas (revisión de estilo de código y pruebas automáticas) para asegurarme de que la versión está sana, y genero el paquete final firmado para Android y para iPhone. En vez de mandarle la actualización a todos los usuarios de golpe, la libero de a poco: empiezo con un 10% de la gente, reviso que no haya errores nuevos ni fallas, y voy subiendo el porcentaje día a día hasta llegar al 100%.
+
+### 5. ¿Cómo implementaría CI/CD?
+Armaría un proceso automático que se encargue de revisar, construir y publicar la app cada vez que alguien sube cambios (esto en conjunto se llama integración y entrega continua, o CI/CD), usando herramientas como GitHub Actions y Fastlane. Cada vez que alguien propone un cambio, el sistema revisa automáticamente el estilo del código y corre las pruebas antes de aceptarlo. Cuando el cambio se aprueba e integra a la versión principal, el sistema sube automáticamente una nueva versión de prueba para el equipo interno. Pasar esa versión a producción sí lo dejaría como un paso manual, para tener control humano antes de publicar.
+
+### 6. ¿Cómo mediría el rendimiento de la app?
+Mientras desarrollo, uso herramientas que muestran qué partes de la pantalla se están redibujando de más y si la app se mueve fluida (React DevTools Profiler y Flipper), buscando que siempre se sienta suave. Ya con la app publicada, mido con herramientas externas (Sentry o Firebase Performance) cuánto tarda en abrir la primera vez, qué tan rápido responden los pedidos al servidor, y cuánta memoria del teléfono está usando, sobre todo en pantallas con muchas imágenes o listas largas.
+
+### 7. ¿Cómo manejaría Crashlytics?
+
+### 8. ¿Cómo implementaría Feature Flags?
+Usaría un sistema para prender o apagar funciones de la app de forma remota sin publicar una nueva versión (Feature Flags), conectado a una función simple que el resto de la app consuma fácilmente. Podría usar un servicio ya hecho como LaunchDarkly o Firebase Remote Config, o construir un administrador propio: un panel donde el equipo prenda/apague funciones y elija a qué porcentaje de usuarios mostrarlas, sin depender de un servicio externo de pago.
+
+Esto permite subir código de una función nueva aunque no esté lista para todos, probarla solo con un grupo chico (prueba A/B), y sobre todo apagarla al instante si algo sale mal (Kill Switch), sin esperar la aprobación de las tiendas.
+
+### 9. ¿Qué haría si una actualización rompe Android pero no iOS?
+Si esa función tiene un interruptor remoto para apagarla (Feature Flag), la apago de inmediato y el problema queda resuelto sin tocar código. Si no lo tiene, pausaría que la actualización siga llegando a más gente desde la tienda de Google. Reviso el reporte de fallas para entender el problema: si es un error en el código de la app en sí, puedo mandar una corrección directa sin pasar por la tienda (actualización por aire, con herramientas como CodePush o EAS Update); si el error viene de una parte más profunda del sistema, tengo que armar una nueva versión solo para Android y mandarla a revisión marcada como urgente.
+
+### 10. ¿Cómo diseñaría una app con más de 200 pantallas?
+Con tantas pantallas, dividiría el proyecto completo en varias partes independientes según el tema de cada una una parte para el login, otra para pagos, otra con los componentes visuales compartidos pero manteniéndolas todas dentro de un mismo repositorio de código . Haría que cada parte de la app se cargue solo cuando el usuario realmente la necesita, para que la app no tarde en abrir (carga diferida o Lazy Loading). Centralizaría los botones, colores y estilos compartidos en un solo lugar para que todo se vea consistente (un sistema de diseño), y usaría reglas estrictas de tipado (TypeScript) para que varios equipos puedan trabajar al mismo tiempo en distintas partes sin romperse el trabajo entre ellos.

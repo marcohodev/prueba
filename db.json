@@ -1,0 +1,18 @@
+{
+  "api": {
+    "accounts": [
+      {
+        "id": 1,
+        "number": "1234567890",
+        "type": "Cuenta Débito",
+        "balance": 24580.30
+      },
+      {
+        "id": 2,
+        "number": "9988776655",
+        "type": "Cuenta Ahorro",
+        "balance": 1200.50
+      }
+    ]
+  }
+}
