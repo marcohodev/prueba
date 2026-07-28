@@ -5,8 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.prueba.tecnica"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.prueba.tecnica"
     }
   }
 }

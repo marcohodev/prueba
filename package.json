@@ -6,11 +6,16 @@
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "run-android": "npm run android",
     "adnroid": "npm run android",
-    "mock": "json-server --watch db.json --port 3000 --host 0.0.0.0"
+    "mock": "json-server --watch db.json --port 3000 --host 0.0.0.0",
+    "eas:build:android": "eas build -p android --profile production",
+    "eas:build:ios": "eas build -p ios --profile production",
+    "prebuild": "expo prebuild --no-install",
+    "build:android-local": "npm run prebuild && cd android && gradlew.bat assembleDebug",
+    "run:android-local": "npm run build:android-local && adb install -r android\\app\\build\\outputs\\apk\\debug\\app-debug.apk"
   },
   "private": true,
   "dependencies": {
@@ -26,6 +31,7 @@
     "@types/react": "^19.2.17",
     "@types/react-native": "^0.72.8",
     "json-server": "^0.17.4",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "@react-native-community/cli": "20.2.0"
   }
 }
